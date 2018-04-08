@@ -22,7 +22,7 @@ def test(dataset_name, epoch):
     """load data"""
 
     img_transform = transforms.Compose([
-        transforms.RandomResizedCrop(image_size),
+        transforms.Resize(image_size),
         transforms.ToTensor(),
         transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
     ])
