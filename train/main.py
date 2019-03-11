@@ -29,7 +29,13 @@ torch.manual_seed(manual_seed)
 
 # load data
 
-img_transform = transforms.Compose([
+img_transform_source = transforms.Compose([
+    transforms.Resize(image_size),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=(0.1307,), std=(0.3081,))
+])
+
+img_transform_tareget = transforms.Compose([
     transforms.Resize(image_size),
     transforms.ToTensor(),
     transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
@@ -38,7 +44,7 @@ img_transform = transforms.Compose([
 dataset_source = datasets.MNIST(
     root=source_image_root,
     train=True,
-    transform=img_transform,
+    transform=img_transform_source,
 )
 
 dataloader_source = torch.utils.data.DataLoader(
@@ -52,7 +58,7 @@ train_list = os.path.join(target_image_root, 'mnist_m_train_labels.txt')
 dataset_target = GetLoader(
     data_root=os.path.join(target_image_root, 'mnist_m_train'),
     data_list=train_list,
-    transform=img_transform
+    transform=img_transform_target
 )
 
 dataloader_target = torch.utils.data.DataLoader(
