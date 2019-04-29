@@ -2,7 +2,7 @@
 
 
 #### Environment
-- Pytorch 0.4.0
+- Pytorch 1.0
 - Python 2.7
 
 #### Network Structure
@@ -12,19 +12,7 @@
 
 #### Dataset
 
-First, you need download two datasets: source dataset mnist,
-
-```
-cd dataset
-mkdir mnist
-cd mnist
-wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
-wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz
-wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz
-wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz
-```
-
-and target dataset mnist_m from [pan.baidu.com](https://pan.baidu.com/s/1eShdX0u) or [Google Drive](https://drive.google.com/open?id=0B_tExHiYS-0veklUZHFYT19KYjg)
+First, you need download the target dataset mnist_m from [pan.baidu.com](https://pan.baidu.com/s/1eShdX0u) or [Google Drive](https://drive.google.com/open?id=0B_tExHiYS-0veklUZHFYT19KYjg)
 
 ```
 cd dataset
@@ -36,4 +24,6 @@ tar -zvxf mnist_m.tar.gz
 #### Training
 
 Then, run `main.py`
+
+python 3 and docker version please go to [DANN_py3](https://github.com/fungtion/DANN_py3) 
 

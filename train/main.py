@@ -3,7 +3,6 @@ import os
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
 import torch.utils.data
-from torch.autograd import Variable
 from dataset.data_loader import GetLoader
 from torchvision import datasets
 from torchvision import transforms
@@ -11,7 +10,7 @@ from models.model import CNNModel
 import numpy as np
 from test import test
 
-source_dataset_name = 'mnist'
+source_dataset_name = 'MNIST'
 target_dataset_name = 'mnist_m'
 source_image_root = os.path.join('..', 'dataset', source_dataset_name)
 target_image_root = os.path.join('..', 'dataset', target_dataset_name)
@@ -35,16 +34,17 @@ img_transform_source = transforms.Compose([
     transforms.Normalize(mean=(0.1307,), std=(0.3081,))
 ])
 
-img_transform_tareget = transforms.Compose([
+img_transform_target = transforms.Compose([
     transforms.Resize(image_size),
     transforms.ToTensor(),
     transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
 ])
 
 dataset_source = datasets.MNIST(
-    root=source_image_root,
+    root='../dataset',
     train=True,
     transform=img_transform_source,
+    download=True
 )
 
 dataloader_source = torch.utils.data.DataLoader(
@@ -121,13 +121,10 @@ for epoch in xrange(n_epoch):
 
         input_img.resize_as_(s_img).copy_(s_img)
         class_label.resize_as_(s_label).copy_(s_label)
-        inputv_img = Variable(input_img)
-        classv_label = Variable(class_label)
-        domainv_label = Variable(domain_label)
 
-        class_output, domain_output = my_net(input_data=inputv_img, alpha=alpha)
-        err_s_label = loss_class(class_output, classv_label)
-        err_s_domain = loss_domain(domain_output, domainv_label)
+        class_output, domain_output = my_net(input_data=input_img, alpha=alpha)
+        err_s_label = loss_class(class_output, class_label)
+        err_s_domain = loss_domain(domain_output, domain_label)
 
         # training model using target data
         data_target = data_target_iter.next()
@@ -145,11 +142,9 @@ for epoch in xrange(n_epoch):
             domain_label = domain_label.cuda()
 
         input_img.resize_as_(t_img).copy_(t_img)
-        inputv_img = Variable(input_img)
-        domainv_label = Variable(domain_label)
 
-        _, domain_output = my_net(input_data=inputv_img, alpha=alpha)
-        err_t_domain = loss_domain(domain_output, domainv_label)
+        _, domain_output = my_net(input_data=input_img, alpha=alpha)
+        err_t_domain = loss_domain(domain_output, domain_label)
         err = err_t_domain + err_s_domain + err_s_label
         err.backward()
         optimizer.step()

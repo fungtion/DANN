@@ -1,14 +1,13 @@
 import os
 import torch.backends.cudnn as cudnn
 import torch.utils.data
-from torch.autograd import Variable
 from torchvision import transforms
 from dataset.data_loader import GetLoader
 from torchvision import datasets
 
 
 def test(dataset_name, epoch):
-    assert dataset_name in ['mnist', 'mnist_m']
+    assert dataset_name in ['MNIST', 'mnist_m']
 
     model_root = os.path.join('..', 'models')
     image_root = os.path.join('..', 'dataset', dataset_name)
@@ -21,7 +20,13 @@ def test(dataset_name, epoch):
 
     """load data"""
 
-    img_transform = transforms.Compose([
+    img_transform_source = transforms.Compose([
+        transforms.Resize(image_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.1307,), std=(0.3081,))
+    ])
+
+    img_transform_target = transforms.Compose([
         transforms.Resize(image_size),
         transforms.ToTensor(),
         transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
@@ -33,13 +38,13 @@ def test(dataset_name, epoch):
         dataset = GetLoader(
             data_root=os.path.join(image_root, 'mnist_m_test'),
             data_list=test_list,
-            transform=img_transform
+            transform=img_transform_target
         )
     else:
         dataset = datasets.MNIST(
-            root=image_root,
+            root='../dataset',
             train=False,
-            transform=img_transform,
+            transform=img_transform_source,
         )
 
     dataloader = torch.utils.data.DataLoader(
@@ -85,16 +90,14 @@ def test(dataset_name, epoch):
 
         input_img.resize_as_(t_img).copy_(t_img)
         class_label.resize_as_(t_label).copy_(t_label)
-        inputv_img = Variable(input_img)
-        classv_label = Variable(class_label)
 
-        class_output, _ = my_net(input_data=inputv_img, alpha=alpha)
+        class_output, _ = my_net(input_data=input_img, alpha=alpha)
         pred = class_output.data.max(1, keepdim=True)[1]
-        n_correct += pred.eq(classv_label.data.view_as(pred)).cpu().sum()
+        n_correct += pred.eq(class_label.data.view_as(pred)).cpu().sum()
         n_total += batch_size
 
         i += 1
 
-    accu = n_correct * 1.0 / n_total
+    accu = n_correct.data.numpy() * 1.0 / n_total
 
     print 'epoch: %d, accuracy of the %s dataset: %f' % (epoch, dataset_name, accu)
